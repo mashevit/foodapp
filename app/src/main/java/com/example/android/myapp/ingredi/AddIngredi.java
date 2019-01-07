@@ -165,7 +165,7 @@ mButton.setOnClickListener(new View.OnClickListener() {
                 Log.i("maaaassst",iii+" "/*+dish.getDishname()*/ );
                 String name = mEditText.getText().toString();
                 dish=mDb.dishDao().loadDishByIdnor(iii);
-                final Mitzrahnames mitzrahnames = new Mitzrahnames(name +" "+ dish.getDishname());
+                final Mitzrahnames mitzrahnames = new Mitzrahnames(name/* +" "+ dish.getDishname()*/);
                 mDb.mitzrahnamesDao().insertingreds(mitzrahnames);
                 String a = mitzrahnames.getIngredientidglobal();
                 String b= iii;

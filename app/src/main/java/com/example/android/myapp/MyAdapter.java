@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.example.android.myapp.database.Dish;
 import com.example.android.myapp.ingredi.AddIngredi;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyAdapterViewHolder> {
@@ -29,7 +31,7 @@ MyAdapterCb myAdapterCb;
    // SharedPreferences sharedPreferences;
 int pos1=-1,pos2=-1,pos3=-1;
 int mod=1;
-    private List<Dish> mDish;
+    private ArrayList<Dish> mDish;
 
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
@@ -83,10 +85,10 @@ if(getItemViewType(position)==0){
 
     //holder.imageView.setImageResource(R.drawable. );
 }
-        else if(getItemViewType(position)!=0){
+        else if(getItemViewType(position)!=0&&position>0){
 
 
-
+       // int position=position1;
 /*
         if (position + 1 == getItemCount()) {
 
@@ -216,15 +218,15 @@ if(getItemViewType(position)==0){
             else if (mod==2){pos2=adapterPosition;mod++;}
             else if (mod ==3){pos3=adapterPosition;mod=1;}*/
 
-           String topass=adapterPosition<(getItemCount()-9)?mDish.get(adapterPosition).getId():-1+"";
+           String topass=(adapterPosition>0&&adapterPosition<(getItemCount()-9))?mDish.get(adapterPosition).getId():-1+"";
             mClickHandler.onClick(topass);
          //   itemView.setSelected(adapterPosition);
 
             //  notifyDataSetChanged();
         }
     }
-    public List<Dish> getDishes() {
-        return mDish;
+    public ArrayList<Dish> getDishes() {
+        mDish.remove(0); return mDish;
     }
 
     /**
@@ -232,7 +234,11 @@ if(getItemViewType(position)==0){
      * and notifies the adapter to use the new values on it
      */
     public void setDishes(List<Dish> Dishes) {
-        mDish = Dishes;
+        ArrayList<Dish> ans=new ArrayList<Dish>();
+        ans.addAll(Dishes);
+        if(Dishes.size()>0)
+        ans.add(0,Dishes.get(0));
+        mDish = ans;
         notifyDataSetChanged();
     }
 

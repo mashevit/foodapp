@@ -29,9 +29,11 @@ import com.example.android.myapp.database.ingredients;
 import com.example.android.myapp.network.RemService;
 import com.example.android.myapp.remote.APIUtils;
 import com.example.android.myapp.remote.DishCSClass;
-import com.example.android.myapp.sync.foodSyncIntentSevice;
+import com.example.android.myapp.sync.foodSyncIntentService2;
+
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -41,19 +43,36 @@ import retrofit2.Response;
 import static android.support.v7.widget.DividerItemDecoration.VERTICAL;
 
 public class MainActivity extends AppCompatActivity implements MyAdapter.MyAdapterOnClickHandler, MyAdapter.MyAdapterCb{
-    private RecyclerView mRecyclerView;
-    private MyAdapter myAdapter;
-private FloatingActionButton fabButton;
-private int count=0;
-    private AppDB mDb;
-    //LocalService mService;
-  //  boolean mBound = false;
-
   //  SharedPreferences settings;
     private static final String TAG = MainActivity.class.getSimpleName();
     static LocalServiceMain mService;
     boolean mBound = false;
     RemService userService;
+    private RecyclerView mRecyclerView;
+    //LocalService mService;
+  //  boolean mBound = false;
+    private MyAdapter myAdapter;
+private FloatingActionButton fabButton;
+private int count=0;
+    private AppDB mDb;
+    /** Defines callbacks for service binding, passed to bindService() */
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            LocalServiceMain.LocalBinderMain binder = (LocalServiceMain.LocalBinderMain) service;
+            mService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,8 +127,8 @@ private int count=0;
                     @Override
                     public void run() {
                         int position = viewHolder.getAdapterPosition();
-                        List<Dish> tasks = myAdapter.getDishes();
-                        Dish dish=tasks.get(position);
+                        ArrayList<Dish> tasks = myAdapter.getDishes();
+                        Dish dish=tasks.get(position-1);
                        // SharedPreferences.Editor editor = settings.edit();
                       //  editor.remove(dish.getId());
                       //  mDb.ingredientsDao().DelParams(dish.getId());
@@ -199,6 +218,7 @@ private int count=0;
             }
         });
     }
+
     @Override
     public void onClick(String pos) {
 
@@ -208,7 +228,6 @@ private int count=0;
         startActivity(intent);
 
     }
-
 
 public void chk(){
     AppExecutors.getInstance().diskIO().execute(new Runnable() {
@@ -259,6 +278,7 @@ public void chk(){
 
 
 }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         /* Use AppCompatActivity's method getMenuInflater to get a handle on the menu inflater */
@@ -285,50 +305,65 @@ public void chk(){
             startActivity(new Intent(this, Ingredi.class));
             return true;
         }else if (id == R.id.showChecked) {
-            List<Dish> mDish = myAdapter.getDishes();
+            ArrayList<Dish> mDish = myAdapter.getDishes();
 
-            String[] ind = new String[mDish.size()];
+            String[] ind = getJ(mDish);
 
-            int j = 0;
-            for (int i = 0; i < mDish.size(); i++) {
-
-                Dish dish = mDish.get(i);
-                //settings = getSharedPreferences(getResources().getString(R.string.myprefs), 0);
-                //  boolean ans = ;//settings.getBoolean(mDish.get(i).getId(), false);
-                if (dish.isChecked()) {
-                    ind[j] = dish.getId();
-                    j++;
-                }
-
-            }
+            int j = ind.length;
             if (j < mDish.size())
                 ind[j] = "end";
             Intent intent = new Intent(MainActivity.this, Ingredi.class);
             intent.putExtra(Ingredi.EXTRA_DATA_ID, ind);
             startActivity(intent);
+        }else if (id == R.id.upchked) {
+            ArrayList<Dish> mDish = myAdapter.getDishes();
+            Log.d("fddffdfcs2122121", "Updating list of tasblablael");
 
+            String[] ind = getJ(mDish);
+
+            int j = ind.length;
+//            if (j < mDish.size())
+//                ind[j] = "end";
+
+
+
+
+          //  List<DishCSClass> ModelList = response.body();
+            Log.d("fddffdfcss2122128", "Updating list of tasblablael");
+
+            Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentService2.class);
+            intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID_Obj, ind);
+            intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID, "upchked");
+            this.startService(intentToSyncImmediately);
+return true;
+
+
+//            Intent intent = new Intent(MainActivity.this, Ingredi.class);
+//            intent.putExtra(Ingredi.EXTRA_DATA_ID, ind);
+//            startActivity(intent);
+//
 
 //        }else if (id == R.id.sync1) {
-//            Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentSevice.class);
-//            intentToSyncImmediately.putExtra(foodSyncIntentSevice.EXTRA_DATA_ID, "syncdish");
+//            Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentService2.class);
+//            intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID, "syncdish");
 //
 //            MainActivity.this.startService(intentToSyncImmediately);
 //            return true;
 //        }
         }else if (id == R.id.syncFull) {
-//        Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentSevice.class);
-//            intentToSyncImmediately.putExtra(foodSyncIntentSevice.EXTRA_DATA_ID, "full");
+//        Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentService2.class);
+//            intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID, "full");
 //            //intent.putExtra(MyService.EXTRA_DATA_ID1, bool);
 //            //startService(intentToSyncImmediately);
 //
 //        MainActivity.this.startService(intentToSyncImmediately);
-getUsersList();
+        getUsersList();
             //getUsersList();
         return true;
     }else if (id == R.id.cleanAll) {
         //    mDb.clearAllTables();
-            Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentSevice.class);
-            intentToSyncImmediately.putExtra(foodSyncIntentSevice.EXTRA_DATA_ID, "clean");
+            Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentService2.class);
+            intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID, "clean");
             //intent.putExtra(MyService.EXTRA_DATA_ID1, bool);
             //startService(intentToSyncImmediately);
             MainActivity.this.startService(intentToSyncImmediately);
@@ -365,7 +400,28 @@ getUsersList();
         }
     }
 
-    *//** Defines callbacks for service binding, passed to bindService() *//*
+    */
+    private String[] getJ(ArrayList<Dish> mDish) {// todo: this apply in CUD rest persist
+
+        String[] ind = new String[mDish.size()];
+        int j = 0;
+        for (int i = 0; i < mDish.size(); i++) {
+
+            Dish dish = mDish.get(i);
+            //settings = getSharedPreferences(getResources().getString(R.string.myprefs), 0);
+            //  boolean ans = ;//settings.getBoolean(mDish.get(i).getId(), false);
+            if (dish.isChecked()) {
+                ind[j] = dish.getId();
+                j++;
+            }
+
+        }
+        if (j < mDish.size())
+            ind[j] = "end";
+        return ind;
+    }
+
+/** Defines callbacks for service binding, passed to bindService() *//*
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -416,6 +472,155 @@ getUsersList();
         holder.mCheckBox.setChecked(dish.isChecked());*/
         /*}});*/
         }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to LocalService
+        Intent intent = new Intent(this, LocalServiceMain.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unbindService(mConnection);
+        mBound = false;
+    }
+
+    /** Called when a button is clicked (the button in the layout file attaches to
+     * this method with the android:onClick attribute) */
+    public void onButtonClick(View v) {
+        if (mBound) {
+            // Call a method from the LocalService.
+            // However, if this call were something that might hang, then this request should
+            // occur in a separate thread to avoid slowing down the activity performance.
+            //int num = mService.getRandomNumber();
+            //    Toast.makeText(this, "number: " + num, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void getUsersList(){
+        Call<List<DishCSClass>> call = userService.getcsdishes();
+        call.enqueue(new Callback<List<DishCSClass>>() {
+            @Override
+            public void onResponse(Call<List<DishCSClass>> call, Response<List<DishCSClass>> response) {
+                if(response.isSuccessful()){
+
+
+                    Log.d(TAG + "fddffdfdfdfdw2122121", "Updating list of tasks from LiveData in ViewModel" + response.body());
+                    if (response != null) {
+                        List<DishCSClass> ModelList = response.body();
+
+                        Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentService2.class);
+                        intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID_Obj, (Serializable) ModelList);
+                        intentToSyncImmediately.putExtra(foodSyncIntentService2.EXTRA_DATA_ID, "full");
+                        MainActivity.this.startService(intentToSyncImmediately);
+
+                    }
+                    //
+//
+//                    if (response != null) {
+//                        List<DishCSClass> ModelList = response.body();
+////                        if (questionsModelList.size() > 0)
+////                            tvm.setText(questionsModelList.get(0).getTrip());
+//                        for (int i = 0; i < ModelList.size(); i++) {
+//                            if(ModelList.get(i).getDishName()!="null") {
+//                                Dish a=new Dish(ModelList.get(i).getDishName());
+//                                List<Dish> tmp=mDb.dishDao().loadDishByname(a.getDishname());
+//                                if(tmp.size()>0) a=tmp.get(0);
+//                                else  mDb.dishDao().insertDish(a);
+//                                List<String> ingreds = ModelList.get(i).getIngreds();
+//
+//                                String id =a.getId();
+//                                for(int j=0;j<ingreds.size();j++){
+//                                    String name = ingreds.get(j);
+//                                    // dish=mDb.dishDao().loadDishByIdnor(iii);
+//                                    //Dish a=(Dish) weatherValues[i].get("dish");
+//                                    List<Mitzrahnames> tmp1=mDb.mitzrahnamesDao().loadIngrediByname(name);
+//
+//                                    Mitzrahnames mitzrahnames;
+//                                    if(tmp1.size()>0)
+//                                        mitzrahnames=tmp1.get(0);
+//                                    else {mitzrahnames = new Mitzrahnames(name);
+//                                        mDb.mitzrahnamesDao().insertingreds(mitzrahnames);}
+//                                    String idmitzrah=mitzrahnames.getIngredientidglobal();
+//                                    ///String a = mitzrahnames.getIngredientidglobal();
+//                                    ///String b= iii;
+//                                    ingredients ingredients22=new ingredients(id,idmitzrah);
+//                                    mDb.ingredientsDao().insertingredsnr(ingredients22);
+//                                }
+//
+//                            }
+//
+//
+//
+//                   /* list = response.body();
+//                    listView.setAdapter(new UserAdapter(MainActivity.this, R.layout.list_user, list));*/
+//                        }
+//                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<DishCSClass>> call, Throwable t) {
+
+            }
+
+        });}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+//
+//
+//    private void login() {
+//        //relativeLayout.setVisibility(View.VISIBLE);
+//
+///*        Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                ImgViewModel.delAll();
+//                //    takeAction();
+//
+//            }
+//        }, 3000);*/
+//        DataServiceGenerator dataServiceGenerator = new DataServiceGenerator();
+//        Service service = dataServiceGenerator.createService(Service.class);
+//        Call<Void> call = service.gettoken(new User("admin", "admin"));
+//        call.enqueue(new Callback<Void>() {
+//
+//
+//                         @Override
+//                         public void onResponse(Call<Void> call, Response<Void> response) {
+//                             ServiceGenerator.Token=response.headers().get("Authorization");
+//
+//                             fetchData();
+//                         }
+//
+//                         @Override
+//                         public void onFailure(Call<Void> call, Throwable t) {
+//
+//                         }
+//                     }
+//        );
+//    }
+
 /*
     private class LongOperation1 extends AsyncTask<String, Void, Void> {
         private AppDB appDB;
@@ -479,183 +684,6 @@ getUsersList();
             return null;
         }
     }
-
-
-
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Bind to LocalService
-        Intent intent = new Intent(this, LocalServiceMain.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(mConnection);
-        mBound = false;
-    }
-
-    /** Called when a button is clicked (the button in the layout file attaches to
-     * this method with the android:onClick attribute) */
-    public void onButtonClick(View v) {
-        if (mBound) {
-            // Call a method from the LocalService.
-            // However, if this call were something that might hang, then this request should
-            // occur in a separate thread to avoid slowing down the activity performance.
-            //int num = mService.getRandomNumber();
-            //    Toast.makeText(this, "number: " + num, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            LocalServiceMain.LocalBinderMain binder = (LocalServiceMain.LocalBinderMain) service;
-            mService = binder.getService();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//    private void login() {
-//        //relativeLayout.setVisibility(View.VISIBLE);
-//
-///*        Handler handler = new Handler();
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                ImgViewModel.delAll();
-//                //    takeAction();
-//
-//            }
-//        }, 3000);*/
-//        DataServiceGenerator dataServiceGenerator = new DataServiceGenerator();
-//        Service service = dataServiceGenerator.createService(Service.class);
-//        Call<Void> call = service.gettoken(new User("admin", "admin"));
-//        call.enqueue(new Callback<Void>() {
-//
-//
-//                         @Override
-//                         public void onResponse(Call<Void> call, Response<Void> response) {
-//                             ServiceGenerator.Token=response.headers().get("Authorization");
-//
-//                             fetchData();
-//                         }
-//
-//                         @Override
-//                         public void onFailure(Call<Void> call, Throwable t) {
-//
-//                         }
-//                     }
-//        );
-//    }
-
-
-
-
-
-
-
-
-    public void getUsersList(){
-        Call<List<DishCSClass>> call = userService.getcsdishes();
-        call.enqueue(new Callback<List<DishCSClass>>() {
-            @Override
-            public void onResponse(Call<List<DishCSClass>> call, Response<List<DishCSClass>> response) {
-                if(response.isSuccessful()){
-
-
-                    Log.d(TAG + "fddffdfdfdfdw2122121", "Updating list of tasks from LiveData in ViewModel" + response.body());
-                    if (response != null) {
-                        List<DishCSClass> ModelList = response.body();
-
-                        Intent intentToSyncImmediately = new Intent(MainActivity.this, foodSyncIntentSevice.class);
-                        intentToSyncImmediately.putExtra(foodSyncIntentSevice.EXTRA_DATA_ID_Obj, (Serializable) ModelList);
-                        intentToSyncImmediately.putExtra(foodSyncIntentSevice.EXTRA_DATA_ID, "full");
-                        MainActivity.this.startService(intentToSyncImmediately);
-
-                    }
-                    //
-//
-//                    if (response != null) {
-//                        List<DishCSClass> ModelList = response.body();
-////                        if (questionsModelList.size() > 0)
-////                            tvm.setText(questionsModelList.get(0).getTrip());
-//                        for (int i = 0; i < ModelList.size(); i++) {
-//                            if(ModelList.get(i).getDishName()!="null") {
-//                                Dish a=new Dish(ModelList.get(i).getDishName());
-//                                List<Dish> tmp=mDb.dishDao().loadDishByname(a.getDishname());
-//                                if(tmp.size()>0) a=tmp.get(0);
-//                                else  mDb.dishDao().insertDish(a);
-//                                List<String> ingreds = ModelList.get(i).getIngreds();
-//
-//                                String id =a.getId();
-//                                for(int j=0;j<ingreds.size();j++){
-//                                    String name = ingreds.get(j);
-//                                    // dish=mDb.dishDao().loadDishByIdnor(iii);
-//                                    //Dish a=(Dish) weatherValues[i].get("dish");
-//                                    List<Mitzrahnames> tmp1=mDb.mitzrahnamesDao().loadIngrediByname(name);
-//
-//                                    Mitzrahnames mitzrahnames;
-//                                    if(tmp1.size()>0)
-//                                        mitzrahnames=tmp1.get(0);
-//                                    else {mitzrahnames = new Mitzrahnames(name);
-//                                        mDb.mitzrahnamesDao().insertingreds(mitzrahnames);}
-//                                    String idmitzrah=mitzrahnames.getIngredientidglobal();
-//                                    ///String a = mitzrahnames.getIngredientidglobal();
-//                                    ///String b= iii;
-//                                    ingredients ingredients22=new ingredients(id,idmitzrah);
-//                                    mDb.ingredientsDao().insertingredsnr(ingredients22);
-//                                }
-//
-//                            }
-//
-//
-//
-//                   /* list = response.body();
-//                    listView.setAdapter(new UserAdapter(MainActivity.this, R.layout.list_user, list));*/
-//                        }
-//                    }
-
-
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<List<DishCSClass>> call, Throwable t) {
-
-            }
-
-        });}
 
 
 

@@ -39,4 +39,7 @@ public interface DishDao {
 
     @Query("SELECT * FROM dishent WHERE dishname LIKE :name")
     List<Dish> loadDishByname(String name);
+
+
+
 }

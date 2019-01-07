@@ -41,6 +41,11 @@ public interface MitzrahnamesDao {
             + "WHERE dishent.id IN (:a) Group By MITZRAHIMNAMES.ingredientidglobal")
     LiveData<List<Mitzrahnames>> loadAllingredswithp(String[] a);
 
+    @Query("SELECT MITZRAHIMNAMES.ingredientname FROM MITZRAHIMNAMES "
+            + "INNER JOIN MITZRAHIM ON MITZRAHIM.ingredientname1 LIKE mitzrahimnames.ingredientidglobal "
+            + "INNER JOIN dishent ON dishent.id LIKE mitzrahim.dishId "
+            + "WHERE dishent.id LIKE :a")
+    List<String> loadAllingredfordish(String a);
 
     @Query("SELECT * FROM mitzrahimnames inner Join mitzrahim On mitzrahim.ingredientname1 LIKE mitzrahimnames.ingredientidglobal  Where mitzrahim.dishId = :a")
     List<Mitzrahnames> loadAllingredswithp1(int a);

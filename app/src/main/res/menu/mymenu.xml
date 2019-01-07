@@ -19,7 +19,11 @@
         android:title="syncFull"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/cleanAll"
-        android:title="cleanAll"
+    android:id="@+id/cleanAll"
+    android:title="cleanAll"
+    app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/upchked"
+        android:title="upsynchked"
         app:showAsAction="ifRoom" />
 </menu>

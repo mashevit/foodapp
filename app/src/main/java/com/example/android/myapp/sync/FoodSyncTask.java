@@ -139,7 +139,27 @@ public class FoodSyncTask extends Activity {
 //        });
 }
 
+    synchronized public static void createupclass(final AppDB mDb,String[] response,Context context) {
+        // RemService userService = APIUtils.getUserService();
 
+
+//        Call<List<DishCSClass>> call = userService.getcsdishes();
+//        call.enqueue(new Callback<List<DishCSClass>>() {
+//            @Override
+//            public void onResponse(Call<List<DishCSClass>> call, Response<List<DishCSClass>> response) {
+//                if(response.isSuccessful()){
+        Log.d( "fddffdf882122121", "Upload start task" );
+
+        mService.upload(mDb,response,context);
+//
+//    }}
+//
+//            @Override
+//            public void onFailure(Call<List<DishCSClass>> call, Throwable t) {
+//
+//            }
+//        });
+    }
 
 
             synchronized public static void clean(final AppDB mDb) {

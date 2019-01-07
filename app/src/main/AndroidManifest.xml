@@ -22,7 +22,8 @@
         <activity android:name=".ingredi.AddIngredi"></activity>
 
         <service android:name=".MyService" />
-        <service android:name=".sync.foodSyncIntentSevice" />
+        <service android:name=".sync.foodSyncIntentService2"
+            android:exported="false"/>
         <service android:name=".sync.LocalService" />
         <service android:name=".LocalServiceMain" />
     </application>
